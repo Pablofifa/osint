@@ -1,1 +1,146 @@
-PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVzIj4KPGhlYWQ+CiAgICA8bWV0YSBjaGFyc2V0PSJVVEYtOCI+CiAgICA8bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLCBpbml0aWFsLXNjYWxlPTEuMCI+CiAgICA8dGl0bGU+T1NJTlQgRGFzaGJvYXJkPC90aXRsZT4KPC9oZWFkPgo8Ym9keT4KICAgIDxoMT5PU0lOVCBEYXNoYm9hcmQ8L2gxPgogICAgPHA+RGVwbG95ZWQgZW4gVmVyY2VsPC9wPgo8L2JvZHk+CjwvaHRtbD4=
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 OSINT Dashboard - GoArt</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: system-ui, sans-serif; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: #e0e0e0; min-height: 100vh; }
+        .header { background: rgba(0,0,0,0.3); padding: 20px; text-align: center; border-bottom: 2px solid #00d9ff; }
+        .header h1 { color: #00d9ff; font-size: 2em; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .tabs { display: flex; gap: 8px; margin: 20px 0; flex-wrap: wrap; justify-content: center; }
+        .tab { padding: 12px 24px; background: #1a1a2e; border: 1px solid #0f3460; border-radius: 8px; cursor: pointer; color: #00d9ff; font-weight: 600; }
+        .tab:hover, .tab.active { background: #00d9ff; color: #000; }
+        .panel { display: none; background: rgba(22,33,62,0.9); padding: 30px; border-radius: 12px; margin: 20px 0; }
+        .panel.active { display: block; }
+        .form-group { margin: 15px 0; }
+        label { display: block; margin-bottom: 8px; color: #00d9ff; }
+        input, select, textarea { width: 100%; padding: 12px; background: #0f3460; border: 1px solid #1a1a2e; color: #e0e0e0; border-radius: 6px; }
+        button { padding: 12px 30px; background: #00d9ff; border: none; color: #000; font-weight: 700; border-radius: 6px; cursor: pointer; margin: 5px; }
+        button:hover { opacity: 0.9; }
+        .results { margin-top: 20px; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 8px; min-height: 100px; }
+        .result-item { padding: 10px; margin: 10px 0; background: rgba(0,217,255,0.1); border-left: 3px solid #00d9ff; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: rgba(15,52,96,0.5); padding: 20px; border-radius: 8px; }
+        .card h3 { color: #00d9ff; margin-bottom: 10px; }
+        .status { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; display: inline-block; }
+        .status.pending { background: #ffaa00; color: #000; }
+        .status.success { background: #00ff88; color: #000; }
+        .status.error { background: #ff4444; color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="header"><h1>🔍 OSINT Dashboard - GoArt</h1><p>Herramientas OSINT y hacking ético</p></div>
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('person')">👤 Person</div>
+            <div class="tab" onclick="showTab('phone')">📱 Phone</div>
+            <div class="tab" onclick="showTab('email')">📧 Email</div>
+            <div class="tab" onclick="showTab('social')">🌐 Social</div>
+            <div class="tab" onclick="showTab('vulns')">🔓 Vulns</div>
+        </div>
+        <div id="person" class="panel active">
+            <h2>👤 Person Search</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="form-group"><label>Name</label><input type="text" id="person-name" placeholder="John Doe"></div>
+                    <div class="form-group"><label>Country</label><select id="person-country"><option value="es">Spain</option><option value="us">USA</option><option value="uk">UK</option></select></div>
+                    <button onclick="searchPerson()">Search</button>
+                </div>
+                <div class="card"><h3>Results</h3><div id="person-results" class="results">Waiting...</div></div>
+            </div>
+        </div>
+        <div id="phone" class="panel">
+            <h2>📱 Phone Lookup</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="form-group"><label>Phone</label><input type="tel" id="phone-number" placeholder="+34 600 000 000"></div>
+                    <button onclick="searchPhone()">Lookup</button>
+                </div>
+                <div class="card"><h3>Results</h3><div id="phone-results" class="results">Waiting...</div></div>
+            </div>
+        </div>
+        <div id="email" class="panel">
+            <h2>📧 Email Search</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="form-group"><label>Email</label><input type="email" id="email-address" placeholder="user@example.com"></div>
+                    <button onclick="searchEmail()">Search</button>
+                </div>
+                <div class="card"><h3>Results</h3><div id="email-results" class="results">Waiting...</div></div>
+            </div>
+        </div>
+        <div id="social" class="panel">
+            <h2>🌐 Social Media</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="form-group"><label>Username</label><input type="text" id="social-username" placeholder="username"></div>
+                    <button onclick="searchSocial()">Search</button>
+                </div>
+                <div class="card"><h3>Results</h3><div id="social-results" class="results">Waiting...</div></div>
+            </div>
+        </div>
+        <div id="vulns" class="panel">
+            <h2>🔓 Vulnerability Scan</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="form-group"><label>Target URL/IP</label><input type="text" id="vulns-target" placeholder="https://example.com"></div>
+                    <button onclick="scanVulns()">Scan</button>
+                </div>
+                <div class="card"><h3>Results</h3><div id="vulns-results" class="results">Waiting...</div></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function showTab(id) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.target.classList.add('active');
+        }
+        async function api(endpoint, data) {
+            try {
+                const r = await fetch(endpoint, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+                return await r.json();
+            } catch(e) { return { error: e.message }; }
+        }
+        async function searchPerson() {
+            const name = document.getElementById('person-name').value;
+            const results = document.getElementById('person-results');
+            results.innerHTML = '<span class="status pending">Searching...</span>';
+            const data = await api('/api/osint/person', { name });
+            results.innerHTML = data.results ? data.results.map(r => `<div class="result-item">${r}</div>`).join('') : '<span class="status error">No results</span>';
+        }
+        async function searchPhone() {
+            const number = document.getElementById('phone-number').value;
+            const results = document.getElementById('phone-results');
+            results.innerHTML = '<span class="status pending">Looking up...</span>';
+            const data = await api('/api/osint/phone', { number });
+            results.innerHTML = data.carrier ? `<div class="result-item"><b>Carrier:</b> ${data.carrier}</div>` : '<span class="status error">Not found</span>';
+        }
+        async function searchEmail() {
+            const email = document.getElementById('email-address').value;
+            const results = document.getElementById('email-results');
+            results.innerHTML = '<span class="status pending">Searching...</span>';
+            const data = await api('/api/osint/email', { email });
+            results.innerHTML = data.found ? '<span class="status success">Found</span>' : '<span class="status error">Not found</span>';
+        }
+        async function searchSocial() {
+            const username = document.getElementById('social-username').value;
+            const results = document.getElementById('social-results');
+            results.innerHTML = '<span class="status pending">Searching...</span>';
+            const data = await api('/api/osint/social', { username });
+            results.innerHTML = data.profiles ? data.profiles.map(p => `<div class="result-item">${p.platform}: ${p.url}</div>`).join('') : '<span class="status error">Not found</span>';
+        }
+        async function scanVulns() {
+            const target = document.getElementById('vulns-target').value;
+            const results = document.getElementById('vulns-results');
+            results.innerHTML = '<span class="status pending">Scanning...</span>';
+            const data = await api('/api/osint/vulns', { target });
+            results.innerHTML = data.vulnerabilities ? data.vulnerabilities.map(v => `<div class="result-item"><b>${v.severity}:</b> ${v.description}</div>`).join('') : '<span class="status success">Clean</span>';
+        }
+    </script>
+</body>
+</html>
