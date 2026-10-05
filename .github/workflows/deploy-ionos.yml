@@ -1,0 +1,33 @@
+name: Deploy to IONOS
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install sshpass
+        run: sudo apt-get update && sudo apt-get install -y sshpass
+
+      - name: Deploy to IONOS
+        env:
+          IONOS_SFTP_PASSWORD: ${{ secrets.IONOS_SFTP_PASSWORD }}
+        run: |
+          TMP_DIR=$(mktemp -d)
+          cp -r api/ "$TMP_DIR/"
+          cp index.html "$TMP_DIR/"
+          cp package.json "$TMP_DIR/" 2>/dev/null || true
+          sshpass -p "$IONOS_SFTP_PASSWORD" sftp -o StrictHostKeyChecking=no su1224881@ionos-hosting.example.com <<EOF
+          cd /home/www/OSINT
+          put -r $TMP_DIR/api/* api/
+          put $TMP_DIR/index.html index.html
+          put $TMP_DIR/package.json package.json 2>/dev/null || true
+          bye
+          EOF
+          rm -rf "$TMP_DIR"
+          echo "::notice::Despliegue completado. Configura OSINT_ACCESS_PASSWORD en el hosting.
