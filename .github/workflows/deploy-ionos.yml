@@ -23,7 +23,7 @@ jobs:
           cp index.html "$TMP_DIR/"
           cp package.json "$TMP_DIR/" 2>/dev/null || true
           sshpass -p "$IONOS_SFTP_PASSWORD" sftp -o StrictHostKeyChecking=no -o Port=22 su1224881@access-5019015320.webspace-host.com <<EOF
-          cd /home/www/OSINT
+          cd /OSINT
           mkdir -p api
           put -r $TMP_DIR/api/* api/
           put $TMP_DIR/index.html index.html
@@ -31,4 +31,4 @@ jobs:
           bye
           EOF
           rm -rf "$TMP_DIR"
-          echo "::notice::Despliegue completado. Configura OSINT_ACCESS_PASSWORD en el hosting.
+          echo "::notice::Despliegue completado en /OSINT. Configura OSINT_ACCESS_PASSWORD en el hosting.
