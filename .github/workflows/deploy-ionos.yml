@@ -11,11 +11,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Check sshpass
-        run: |
-          which sshpass || echo "sshpass NOT FOUND"
-          sshpass -V 2>&1 || echo "sshpass version check failed"
-
       - name: Deploy to IONOS
         env:
           IONOS_SFTP_PASSWORD: ${{ secrets.IONOS_SFTP_PASSWORD }}
