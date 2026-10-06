@@ -1,0 +1,34 @@
+name: Deploy to IONOS (v2)
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      - name: Deploy to IONOS via SFTP
+        env:
+          IONOS_SFTP_USER: su1224881
+          IONOS_SFTP_HOST: access-5019015320.webspace-host.com
+          IONOS_SFTP_PORT: 22
+          IONOS_SFTP_PASSWORD: ${{ secrets.IONOS_SFTP_PASSWORD }}
+          IONOS_REMOTE_PATH: /OSINT
+        run: |
+          lftp -c "open -u $IONOS_SFTP_USER,$IONOS_SFTP_PASSWORD sftp://$IONOS_SFTP_HOST:$IONOS_SFTP_PORT" <<EOF
+          set sftp:auto-confirm yes
+          cd $IONOS_REMOTE_PATH
+          mkdir -p api
+          mirror -R --delete --exclude-glob=.git* ./api api
+          put index.html
+          put package.json || true
+          bye
+          EOF
+          echo "::notice::Despliegue completado en /OSINT. Configura OSINT_ACCESS_PASSWORD en el hosting."
