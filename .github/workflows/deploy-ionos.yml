@@ -11,28 +11,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install lftp
-        run: sudo apt-get update && sudo apt-get install -y lftp
-
       - name: Deploy to IONOS
         env:
           IONOS_SFTP_PASSWORD: ${{ secrets.IONOS_SFTP_PASSWORD }}
         run: |
-          TMP_DIR=$(mktemp -d)
-          cp -r api/ "$TMP_DIR/"
-          cp index.html "$TMP_DIR/"
-          cp package.json "$TMP_DIR/" 2>/dev/null || true
-
           echo "Conectando a IONOS..."
-          lftp -c "open -u su1224881,$IONOS_SFTP_PASSWORD sftp://access-5019015320.webspace-host.com:22" <<EOF
-          set sftp:auto-confirm yes
+          sftp -o StrictHostKeyChecking=no -o Port=22 -b - su1224881@access-5019015320.webspace-host.com <<EOF
           cd /OSINT
           mkdir -p api
-          mirror -R --delete ./api api
+          put -r api/* api/
           put index.html
-          put package.json || true
+          put package.json
           bye
           EOF
-
-          rm -rf "$TMP_DIR"
           echo "::notice::Despliegue completado en /OSINT"
